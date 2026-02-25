@@ -26,6 +26,8 @@ import {
   HiChevronDown,
   HiChevronUp,
   HiArrowPath,
+  HiLanguage,
+  HiGlobeAlt,
 } from 'react-icons/hi2'
 
 // ─── Constants ───
@@ -34,6 +36,31 @@ const VOICE_AGENT_ID = '699f6f914b34ff0a9387f8e0'
 const RAG_ID = '699f6f75f572c99c0ffb74d6'
 
 // ─── Types ───
+type SupportedLanguage = 'auto' | 'english' | 'hindi' | 'tamil' | 'telugu' | 'kannada' | 'malayalam' | 'bengali' | 'marathi' | 'gujarati' | 'punjabi' | 'urdu' | 'odia' | 'assamese'
+
+interface LanguageOption {
+  code: SupportedLanguage
+  label: string
+  nativeLabel: string
+}
+
+const SUPPORTED_LANGUAGES: LanguageOption[] = [
+  { code: 'auto', label: 'Auto-detect', nativeLabel: 'Auto' },
+  { code: 'english', label: 'English', nativeLabel: 'English' },
+  { code: 'hindi', label: 'Hindi', nativeLabel: 'हिन्दी' },
+  { code: 'tamil', label: 'Tamil', nativeLabel: 'தமிழ்' },
+  { code: 'telugu', label: 'Telugu', nativeLabel: 'తెలుగు' },
+  { code: 'kannada', label: 'Kannada', nativeLabel: 'ಕನ್ನಡ' },
+  { code: 'malayalam', label: 'Malayalam', nativeLabel: 'മലയാളം' },
+  { code: 'bengali', label: 'Bengali', nativeLabel: 'বাংলা' },
+  { code: 'marathi', label: 'Marathi', nativeLabel: 'मराठी' },
+  { code: 'gujarati', label: 'Gujarati', nativeLabel: 'ગુજરાતી' },
+  { code: 'punjabi', label: 'Punjabi', nativeLabel: 'ਪੰਜਾਬੀ' },
+  { code: 'urdu', label: 'Urdu', nativeLabel: 'اردو' },
+  { code: 'odia', label: 'Odia', nativeLabel: 'ଓଡ଼ିଆ' },
+  { code: 'assamese', label: 'Assamese', nativeLabel: 'অসমীয়া' },
+]
+
 interface ChatMessage {
   id: string
   role: 'user' | 'agent'
@@ -41,6 +68,7 @@ interface ChatMessage {
   timestamp: Date
   category?: string
   resolved?: boolean
+  detectedLanguage?: string
 }
 
 interface Conversation {
@@ -103,6 +131,71 @@ function getCategoryLabel(category?: string): string {
     case 'general': return 'General'
     default: return 'General'
   }
+}
+
+function getLanguageDisplayName(langCode?: string): string {
+  if (!langCode) return ''
+  const found = SUPPORTED_LANGUAGES.find((l) => l.code === langCode)
+  return found ? found.nativeLabel : langCode
+}
+
+// ─── Language Selector ───
+function LanguageSelector({
+  selectedLanguage,
+  onSelect,
+  compact,
+}: {
+  selectedLanguage: SupportedLanguage
+  onSelect: (lang: SupportedLanguage) => void
+  compact?: boolean
+}) {
+  const [isOpen, setIsOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const currentLang = SUPPORTED_LANGUAGES.find((l) => l.code === selectedLanguage) || SUPPORTED_LANGUAGES[0]
+
+  return (
+    <div ref={dropdownRef} className="relative">
+      <button
+        onClick={() => setIsOpen((p) => !p)}
+        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border bg-card hover:bg-muted/50 text-foreground transition-colors duration-150 ${compact ? 'text-[10px]' : 'text-xs'}`}
+        title="Select language"
+      >
+        <HiLanguage className={compact ? 'w-3 h-3' : 'w-3.5 h-3.5'} />
+        <span className="font-sans">{currentLang.nativeLabel}</span>
+        <HiChevronDown className={`w-3 h-3 transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute bottom-full mb-1 left-0 z-50 w-56 max-h-72 overflow-y-auto bg-popover border border-border rounded-xl shadow-xl py-1.5 scrollbar-thin">
+          {SUPPORTED_LANGUAGES.map((lang) => (
+            <button
+              key={lang.code}
+              onClick={() => {
+                onSelect(lang.code)
+                setIsOpen(false)
+              }}
+              className={`w-full flex items-center gap-3 px-3 py-2 text-left transition-colors duration-100 hover:bg-muted/50 ${selectedLanguage === lang.code ? 'bg-accent/10 text-accent' : 'text-foreground'}`}
+            >
+              <span className="text-xs font-sans flex-1">{lang.label}</span>
+              <span className="text-xs text-muted-foreground font-sans">{lang.nativeLabel}</span>
+              {selectedLanguage === lang.code && <HiCheckCircle className="w-3.5 h-3.5 text-accent flex-shrink-0" />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
 }
 
 // ─── Markdown Renderer ───
@@ -298,7 +391,7 @@ function DashboardScreen({
       <div>
         <h1 className="font-serif text-3xl lg:text-4xl font-bold tracking-tight text-foreground">Support Hub</h1>
         <p className="text-muted-foreground mt-1.5 text-sm font-sans" style={{ lineHeight: '1.65' }}>
-          Welcome to Homemate Customer Service. Choose a channel to get started.
+          Welcome to Homemate Customer Service. Chat or call in English, Hindi, Tamil, Telugu, and 9 more Indian languages.
         </p>
       </div>
 
@@ -311,7 +404,7 @@ function DashboardScreen({
             <div>
               <h3 className="font-serif text-xl font-semibold text-foreground">Start Chat</h3>
               <p className="text-sm text-muted-foreground mt-1 font-sans" style={{ lineHeight: '1.65' }}>
-                Get instant help via text chat with our AI support agent
+                Get instant help via text chat in English, Hindi, Tamil, Telugu, and more
               </p>
             </div>
             <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90 font-sans">Open Chat</Button>
@@ -326,7 +419,7 @@ function DashboardScreen({
             <div>
               <h3 className="font-serif text-xl font-semibold text-foreground">Call Support</h3>
               <p className="text-sm text-muted-foreground mt-1 font-sans" style={{ lineHeight: '1.65' }}>
-                Speak directly with our AI voice assistant for live help
+                Speak with our AI voice assistant in your preferred Indian language
               </p>
             </div>
             <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90 font-sans">Start Call</Button>
@@ -397,11 +490,17 @@ function ChatScreen({
   isLoading,
   onSend,
   onBack,
+  selectedLanguage,
+  onLanguageChange,
+  detectedLanguage,
 }: {
   messages: ChatMessage[]
   isLoading: boolean
   onSend: (text: string) => void
   onBack: () => void
+  selectedLanguage: SupportedLanguage
+  onLanguageChange: (lang: SupportedLanguage) => void
+  detectedLanguage?: string
 }) {
   const [inputValue, setInputValue] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -448,6 +547,21 @@ function ChatScreen({
         </Badge>
       </div>
 
+      {/* Language indicator bar */}
+      <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-muted/20 flex-shrink-0">
+        <div className="flex items-center gap-2">
+          <HiGlobeAlt className="w-3.5 h-3.5 text-muted-foreground" />
+          <span className="text-[10px] text-muted-foreground font-sans">
+            {selectedLanguage === 'auto'
+              ? detectedLanguage
+                ? `Auto-detected: ${getLanguageDisplayName(detectedLanguage)}`
+                : 'Language: Auto-detect'
+              : `Language: ${getLanguageDisplayName(selectedLanguage)}`}
+          </span>
+        </div>
+        <LanguageSelector selectedLanguage={selectedLanguage} onSelect={onLanguageChange} compact />
+      </div>
+
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
         {safeMessages.length === 0 && !isLoading && (
           <div className="flex flex-col items-center justify-center h-full text-center py-12">
@@ -458,6 +572,10 @@ function ChatScreen({
             <p className="text-sm text-muted-foreground max-w-sm font-sans" style={{ lineHeight: '1.65' }}>
               Ask about products, track orders, get technical support, or submit a complaint. Our AI assistant is here to help.
             </p>
+            <div className="flex items-center gap-1.5 mt-3 text-muted-foreground">
+              <HiLanguage className="w-4 h-4" />
+              <span className="text-xs font-sans">Supports English, Hindi, Tamil, Telugu, Kannada, and 8 more Indian languages</span>
+            </div>
           </div>
         )}
 
@@ -469,11 +587,17 @@ function ChatScreen({
                   <p className="text-sm" style={{ lineHeight: '1.65' }}>{msg.text}</p>
                 )}
               </div>
-              <div className={`flex items-center gap-2 mt-1.5 px-1 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div className={`flex items-center gap-2 mt-1.5 px-1 flex-wrap ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <span className="text-[10px] text-muted-foreground font-sans">{formatTime(msg.timestamp)}</span>
                 {msg.role === 'agent' && msg.category && (
                   <Badge variant="outline" className={`text-[9px] px-1.5 py-0 border ${getCategoryColor(msg.category)}`}>
                     {getCategoryLabel(msg.category)}
+                  </Badge>
+                )}
+                {msg.role === 'agent' && msg.detectedLanguage && msg.detectedLanguage !== 'english' && (
+                  <Badge variant="outline" className="text-[9px] px-1.5 py-0 border border-cyan-700/50 bg-cyan-900/30 text-cyan-300">
+                    <HiLanguage className="w-2.5 h-2.5 mr-0.5" />
+                    {getLanguageDisplayName(msg.detectedLanguage)}
                   </Badge>
                 )}
                 {msg.role === 'agent' && msg.resolved === true && (
@@ -493,7 +617,7 @@ function ChatScreen({
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Type your question..."
+            placeholder={selectedLanguage === 'hindi' ? 'अपना सवाल टाइप करें...' : selectedLanguage === 'tamil' ? 'உங்கள் கேள்வியை தட்டச்சு செய்யுங்கள்...' : selectedLanguage === 'telugu' ? 'మీ ప్రశ్నను టైప్ చేయండి...' : selectedLanguage === 'kannada' ? 'ನಿಮ್ಮ ಪ್ರಶ್ನೆಯನ್ನು ಟೈಪ್ ಮಾಡಿ...' : selectedLanguage === 'bengali' ? 'আপনার প্রশ্ন লিখুন...' : selectedLanguage === 'marathi' ? 'तुमचा प्रश्न टाइप करा...' : selectedLanguage === 'malayalam' ? 'നിങ്ങളുടെ ചോദ്യം ടൈപ്പ് ചെയ്യുക...' : selectedLanguage === 'gujarati' ? 'તમારો પ્રશ્ન ટાઈપ કરો...' : 'Type your question in any language...'}
             className="flex-1 bg-input border-border text-foreground placeholder:text-muted-foreground font-sans text-sm"
             disabled={isLoading}
           />
@@ -515,6 +639,8 @@ function VoiceScreen({
   onEndCall,
   onToggleMute,
   onBack,
+  selectedLanguage,
+  onLanguageChange,
 }: {
   voiceStatus: VoiceStatus
   voiceTranscripts: VoiceTranscript[]
@@ -523,6 +649,8 @@ function VoiceScreen({
   onEndCall: () => void
   onToggleMute: () => void
   onBack: () => void
+  selectedLanguage: SupportedLanguage
+  onLanguageChange: (lang: SupportedLanguage) => void
 }) {
   const [showTranscript, setShowTranscript] = useState(true)
   const transcriptRef = useRef<HTMLDivElement>(null)
@@ -587,9 +715,29 @@ function VoiceScreen({
           {statusLabel[voiceStatus]}
         </p>
 
-        <div className="mb-8">
+        <div className="mb-6">
           <VoiceWaveform status={voiceStatus} />
         </div>
+
+        {/* Language selector - shown when idle or before call */}
+        {!isActive && (
+          <div className="mb-5 flex flex-col items-center gap-2">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <HiGlobeAlt className="w-3.5 h-3.5" />
+              <span className="text-[11px] font-sans">Speak in your preferred language</span>
+            </div>
+            <LanguageSelector selectedLanguage={selectedLanguage} onSelect={onLanguageChange} />
+          </div>
+        )}
+
+        {isActive && selectedLanguage !== 'auto' && (
+          <div className="mb-4">
+            <Badge variant="outline" className="border-cyan-700/50 bg-cyan-900/20 text-cyan-300 text-[10px] px-2 py-0.5 font-sans">
+              <HiLanguage className="w-3 h-3 mr-1" />
+              {getLanguageDisplayName(selectedLanguage)}
+            </Badge>
+          </div>
+        )}
 
         <div className="flex items-center gap-4">
           {!isActive ? (
@@ -780,12 +928,15 @@ export default function Page() {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
   const [chatLoading, setChatLoading] = useState(false)
   const [chatSessionId, setChatSessionId] = useState<string | undefined>(undefined)
+  const [chatLanguage, setChatLanguage] = useState<SupportedLanguage>('auto')
+  const [detectedChatLanguage, setDetectedChatLanguage] = useState<string | undefined>(undefined)
 
   // Voice state
   const [voiceStatus, setVoiceStatus] = useState<VoiceStatus>('idle')
   const [voiceTranscripts, setVoiceTranscripts] = useState<VoiceTranscript[]>([])
   const [isMuted, setIsMuted] = useState(false)
   const isMutedRef = useRef(false)
+  const [voiceLanguage, setVoiceLanguage] = useState<SupportedLanguage>('auto')
   const wsRef = useRef<WebSocket | null>(null)
   const audioContextRef = useRef<AudioContext | null>(null)
   const processorRef = useRef<ScriptProcessorNode | null>(null)
@@ -844,6 +995,7 @@ export default function Page() {
     setActiveConvoId(convoId)
     setChatMessages([])
     setChatSessionId(undefined)
+    setDetectedChatLanguage(undefined)
     setCurrentScreen('chat')
   }, [])
 
@@ -869,7 +1021,14 @@ export default function Page() {
     )
 
     try {
-      const result = await callAIAgent(text, CHAT_AGENT_ID, {
+      // If a specific language is selected, prepend instruction
+      let messageToSend = text
+      if (chatLanguage !== 'auto') {
+        const langLabel = SUPPORTED_LANGUAGES.find((l) => l.code === chatLanguage)?.label || chatLanguage
+        messageToSend = `[Please respond in ${langLabel}] ${text}`
+      }
+
+      const result = await callAIAgent(messageToSend, CHAT_AGENT_ID, {
         session_id: chatSessionId,
       })
 
@@ -877,6 +1036,11 @@ export default function Page() {
         const agentText = result.response.result?.response ?? result.response.result?.text ?? result.response?.message ?? 'I apologize, I was unable to process your request. Please try again.'
         const category = result.response.result?.category ?? 'general'
         const resolved = result.response.result?.resolved ?? false
+        const detectedLang = result.response.result?.detected_language ?? undefined
+
+        if (detectedLang) {
+          setDetectedChatLanguage(String(detectedLang))
+        }
 
         if (result?.session_id) {
           setChatSessionId(result.session_id)
@@ -889,6 +1053,7 @@ export default function Page() {
           timestamp: new Date(),
           category: String(category),
           resolved: Boolean(resolved),
+          detectedLanguage: detectedLang ? String(detectedLang) : undefined,
         }
 
         setChatMessages((prev) => [...prev, agentMsg])
@@ -930,7 +1095,7 @@ export default function Page() {
       setChatLoading(false)
       setActiveAgentId(null)
     }
-  }, [chatSessionId])
+  }, [chatSessionId, chatLanguage])
 
   // ─── Voice Handlers ───
   const cleanupVoice = useCallback(() => {
@@ -1227,6 +1392,9 @@ export default function Page() {
               isLoading={chatLoading}
               onSend={handleSendMessage}
               onBack={() => navigateTo('dashboard')}
+              selectedLanguage={chatLanguage}
+              onLanguageChange={setChatLanguage}
+              detectedLanguage={detectedChatLanguage}
             />
           )}
 
@@ -1239,6 +1407,8 @@ export default function Page() {
               onEndCall={endVoiceCall}
               onToggleMute={toggleMute}
               onBack={() => navigateTo('dashboard')}
+              selectedLanguage={voiceLanguage}
+              onLanguageChange={setVoiceLanguage}
             />
           )}
 

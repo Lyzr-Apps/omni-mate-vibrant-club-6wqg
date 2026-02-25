@@ -1,18 +1,20 @@
 {
   "agent_name": "Chat Support Agent",
   "agent_id": "699f6f91c0d92a0f4e4754b8",
-  "description": "Handles live chat customer queries \u2014 product information, order tracking, complaints, and technical support \u2014 using Homemate website knowledge base",
+  "description": "Handles live chat customer queries in English and Indian languages — product information, order tracking, complaints, and technical support — using Homemate website knowledge base",
   "agent_type": "json",
   "accessor": "result",
   "auto_generated": true,
   "response_schema": {
     "response": "string",
     "category": "string",
-    "resolved": "boolean"
+    "resolved": "boolean",
+    "detected_language": "string"
   },
   "example_response": {
-    "response": "The chat response message to the customer",
+    "response": "The chat response message to the customer in their preferred language",
     "category": "Query category: product_info, order_tracking, complaint, technical_support, general",
-    "resolved": false
+    "resolved": false,
+    "detected_language": "english"
   }
 }
