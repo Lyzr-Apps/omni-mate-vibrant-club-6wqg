@@ -1,0 +1,18 @@
+{
+  "agent_name": "Chat Support Agent",
+  "agent_id": "699f6f91c0d92a0f4e4754b8",
+  "description": "Handles live chat customer queries \u2014 product information, order tracking, complaints, and technical support \u2014 using Homemate website knowledge base",
+  "agent_type": "json",
+  "accessor": "result",
+  "auto_generated": true,
+  "response_schema": {
+    "response": "string",
+    "category": "string",
+    "resolved": "boolean"
+  },
+  "example_response": {
+    "response": "The chat response message to the customer",
+    "category": "Query category: product_info, order_tracking, complaint, technical_support, general",
+    "resolved": false
+  }
+}
