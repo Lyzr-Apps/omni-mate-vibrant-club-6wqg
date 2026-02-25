@@ -113,11 +113,11 @@ function formatDate(date: Date) {
 
 function getCategoryColor(category?: string): string {
   switch (category) {
-    case 'product_info': return 'bg-blue-900/40 text-blue-300 border-blue-700/50'
-    case 'order_tracking': return 'bg-emerald-900/40 text-emerald-300 border-emerald-700/50'
-    case 'complaint': return 'bg-red-900/40 text-red-300 border-red-700/50'
-    case 'technical_support': return 'bg-purple-900/40 text-purple-300 border-purple-700/50'
-    case 'general': return 'bg-amber-900/40 text-amber-300 border-amber-700/50'
+    case 'product_info': return 'bg-blue-50 text-blue-700 border-blue-200'
+    case 'order_tracking': return 'bg-emerald-50 text-emerald-700 border-emerald-200'
+    case 'complaint': return 'bg-red-50 text-red-700 border-red-200'
+    case 'technical_support': return 'bg-purple-50 text-purple-700 border-purple-200'
+    case 'general': return 'bg-amber-50 text-amber-700 border-amber-200'
     default: return 'bg-muted text-muted-foreground border-border'
   }
 }
@@ -361,7 +361,7 @@ function AgentStatusPanel({ activeAgentId }: { activeAgentId: string | null }) {
       <CardContent className="px-4 pb-4 space-y-2.5">
         {agents.map((agent) => (
           <div key={agent.id} className="flex items-center gap-2.5">
-            <div className={`w-2 h-2 rounded-full flex-shrink-0 ${activeAgentId === agent.id ? 'bg-emerald-400 animate-pulse' : 'bg-muted-foreground/40'}`} />
+            <div className={`w-2 h-2 rounded-full flex-shrink-0 ${activeAgentId === agent.id ? 'bg-pink-400 animate-pulse' : 'bg-muted-foreground/40'}`} />
             <div className="min-w-0">
               <p className="text-[11px] font-medium text-foreground truncate">{agent.name}</p>
               <p className="text-[9px] text-muted-foreground truncate">{agent.purpose}</p>
@@ -459,19 +459,19 @@ function DashboardScreen({
             {recentConvos.map((convo) => (
               <Card key={convo.id} className="border-border bg-card shadow-sm hover:shadow-md transition-shadow cursor-pointer" onClick={onViewHistory}>
                 <CardContent className="p-4 flex items-center gap-3">
-                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${convo.channel === 'chat' ? 'bg-blue-900/30' : 'bg-emerald-900/30'}`}>
-                    {convo.channel === 'chat' ? <HiChatBubbleLeftRight className="w-4 h-4 text-blue-400" /> : <HiPhone className="w-4 h-4 text-emerald-400" />}
+                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${convo.channel === 'chat' ? 'bg-pink-50' : 'bg-fuchsia-50'}`}>
+                    {convo.channel === 'chat' ? <HiChatBubbleLeftRight className="w-4 h-4 text-pink-500" /> : <HiPhone className="w-4 h-4 text-fuchsia-500" />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <Badge variant="outline" className={`text-[10px] px-1.5 py-0 border ${convo.channel === 'chat' ? 'border-blue-700/50 text-blue-300' : 'border-emerald-700/50 text-emerald-300'}`}>
+                      <Badge variant="outline" className={`text-[10px] px-1.5 py-0 border ${convo.channel === 'chat' ? 'border-pink-300 text-pink-600' : 'border-fuchsia-300 text-fuchsia-600'}`}>
                         {convo.channel === 'chat' ? 'Chat' : 'Voice'}
                       </Badge>
                       <span className="text-[10px] text-muted-foreground font-sans">{formatDate(convo.startedAt)}</span>
                     </div>
                     <p className="text-sm text-foreground truncate mt-0.5">{convo.lastMessage || 'No messages'}</p>
                   </div>
-                  <Badge variant="outline" className={`flex-shrink-0 text-[10px] px-1.5 py-0 border ${convo.status === 'resolved' ? 'border-emerald-700/50 text-emerald-400' : 'border-amber-700/50 text-amber-400'}`}>
+                  <Badge variant="outline" className={`flex-shrink-0 text-[10px] px-1.5 py-0 border ${convo.status === 'resolved' ? 'border-emerald-300 text-emerald-600' : 'border-amber-300 text-amber-600'}`}>
                     {convo.status === 'resolved' ? 'Resolved' : 'Active'}
                   </Badge>
                 </CardContent>
@@ -542,7 +542,7 @@ function ChatScreen({
             <p className="text-[10px] text-muted-foreground font-sans">Homemate AI Assistant</p>
           </div>
         </div>
-        <Badge variant="outline" className="border-emerald-700/50 text-emerald-400 text-[10px] px-1.5 py-0">
+        <Badge variant="outline" className="border-emerald-300 text-emerald-600 text-[10px] px-1.5 py-0">
           <HiSignal className="w-3 h-3 mr-1" /> Online
         </Badge>
       </div>
@@ -595,13 +595,13 @@ function ChatScreen({
                   </Badge>
                 )}
                 {msg.role === 'agent' && msg.detectedLanguage && msg.detectedLanguage !== 'english' && (
-                  <Badge variant="outline" className="text-[9px] px-1.5 py-0 border border-cyan-700/50 bg-cyan-900/30 text-cyan-300">
+                  <Badge variant="outline" className="text-[9px] px-1.5 py-0 border border-pink-300 bg-pink-50 text-pink-600">
                     <HiLanguage className="w-2.5 h-2.5 mr-0.5" />
                     {getLanguageDisplayName(msg.detectedLanguage)}
                   </Badge>
                 )}
                 {msg.role === 'agent' && msg.resolved === true && (
-                  <HiCheckCircle className="w-3 h-3 text-emerald-400" />
+                  <HiCheckCircle className="w-3 h-3 text-emerald-500" />
                 )}
               </div>
             </div>
@@ -675,11 +675,11 @@ function VoiceScreen({
 
   const statusColor: Record<VoiceStatus, string> = {
     idle: 'text-muted-foreground',
-    connecting: 'text-amber-400',
-    connected: 'text-emerald-400',
-    listening: 'text-blue-400',
+    connecting: 'text-amber-500',
+    connected: 'text-emerald-500',
+    listening: 'text-pink-500',
     speaking: 'text-accent',
-    error: 'text-red-400',
+    error: 'text-red-500',
   }
 
   return (
@@ -698,7 +698,7 @@ function VoiceScreen({
           </div>
         </div>
         {isActive && (
-          <Badge variant="outline" className="border-emerald-700/50 text-emerald-400 text-[10px] px-1.5 py-0">
+          <Badge variant="outline" className="border-emerald-300 text-emerald-600 text-[10px] px-1.5 py-0">
             <HiSignal className="w-3 h-3 mr-1" /> Live
           </Badge>
         )}
@@ -732,7 +732,7 @@ function VoiceScreen({
 
         {isActive && selectedLanguage !== 'auto' && (
           <div className="mb-4">
-            <Badge variant="outline" className="border-cyan-700/50 bg-cyan-900/20 text-cyan-300 text-[10px] px-2 py-0.5 font-sans">
+            <Badge variant="outline" className="border-pink-300 bg-pink-50 text-pink-600 text-[10px] px-2 py-0.5 font-sans">
               <HiLanguage className="w-3 h-3 mr-1" />
               {getLanguageDisplayName(selectedLanguage)}
             </Badge>
@@ -744,7 +744,7 @@ function VoiceScreen({
             <Button
               onClick={onStartCall}
               disabled={voiceStatus === 'connecting'}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-full font-sans text-sm h-auto"
+              className="bg-pink-500 hover:bg-pink-600 text-white px-8 py-3 rounded-full font-sans text-sm h-auto"
             >
               {voiceStatus === 'connecting' ? (
                 <HiArrowPath className="w-5 h-5 mr-2 animate-spin" />
@@ -758,11 +758,11 @@ function VoiceScreen({
               <Button
                 onClick={onToggleMute}
                 variant="outline"
-                className={`w-14 h-14 rounded-full p-0 border-2 transition-colors duration-200 ${isMuted ? 'border-red-500/50 bg-red-900/20 text-red-400' : 'border-border bg-card text-foreground hover:bg-muted'}`}
+                className={`w-14 h-14 rounded-full p-0 border-2 transition-colors duration-200 ${isMuted ? 'border-red-300 bg-red-50 text-red-500' : 'border-border bg-card text-foreground hover:bg-muted'}`}
               >
                 {isMuted ? <HiMicrophoneSlash className="w-6 h-6" /> : <HiMicrophone className="w-6 h-6" />}
               </Button>
-              <Button onClick={onEndCall} className="w-14 h-14 rounded-full p-0 bg-red-600 hover:bg-red-700 text-white">
+              <Button onClick={onEndCall} className="w-14 h-14 rounded-full p-0 bg-red-500 hover:bg-red-600 text-white">
                 <HiXMark className="w-6 h-6" />
               </Button>
             </>
@@ -829,12 +829,12 @@ function HistoryScreen({
                 onClick={() => setExpandedId(isExpanded ? null : convo.id)}
                 className="w-full p-4 flex items-center gap-3 text-left hover:bg-muted/30 transition-colors"
               >
-                <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${convo.channel === 'chat' ? 'bg-blue-900/30' : 'bg-emerald-900/30'}`}>
-                  {convo.channel === 'chat' ? <HiChatBubbleLeftRight className="w-4 h-4 text-blue-400" /> : <HiPhone className="w-4 h-4 text-emerald-400" />}
+                <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${convo.channel === 'chat' ? 'bg-pink-50' : 'bg-fuchsia-50'}`}>
+                  {convo.channel === 'chat' ? <HiChatBubbleLeftRight className="w-4 h-4 text-pink-500" /> : <HiPhone className="w-4 h-4 text-fuchsia-500" />}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <Badge variant="outline" className={`text-[10px] px-1.5 py-0 border ${convo.channel === 'chat' ? 'border-blue-700/50 text-blue-300' : 'border-emerald-700/50 text-emerald-300'}`}>
+                    <Badge variant="outline" className={`text-[10px] px-1.5 py-0 border ${convo.channel === 'chat' ? 'border-pink-300 text-pink-600' : 'border-fuchsia-300 text-fuchsia-600'}`}>
                       {convo.channel === 'chat' ? 'Chat' : 'Voice'}
                     </Badge>
                     <span className="text-[10px] text-muted-foreground font-sans flex items-center gap-1">
@@ -844,7 +844,7 @@ function HistoryScreen({
                   <p className="text-sm text-foreground truncate">{convo.lastMessage || 'No messages'}</p>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <Badge variant="outline" className={`text-[10px] px-1.5 py-0 border ${convo.status === 'resolved' ? 'border-emerald-700/50 text-emerald-400' : 'border-amber-700/50 text-amber-400'}`}>
+                  <Badge variant="outline" className={`text-[10px] px-1.5 py-0 border ${convo.status === 'resolved' ? 'border-emerald-300 text-emerald-600' : 'border-amber-300 text-amber-600'}`}>
                     {convo.status === 'resolved' ? 'Resolved' : 'Active'}
                   </Badge>
                   {isExpanded ? <HiChevronUp className="w-4 h-4 text-muted-foreground" /> : <HiChevronDown className="w-4 h-4 text-muted-foreground" />}
@@ -1363,7 +1363,7 @@ export default function Page() {
               <HiPhone className="w-5 h-5 flex-shrink-0" />
               <span className="hidden lg:block">Call</span>
               {voiceStatus !== 'idle' && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-pink-400 animate-pulse" />
               )}
             </button>
 
