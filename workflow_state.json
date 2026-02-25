@@ -31,7 +31,7 @@
       "agent_id": "699f6f914b34ff0a9387f8e0",
       "name": "Voice Support Agent",
       "type": "voice",
-      "model": "gpt-4.1",
+      "model": "gpt-4o-realtime",
       "provider": "openai",
       "has_knowledge_base": true,
       "has_voice": true,

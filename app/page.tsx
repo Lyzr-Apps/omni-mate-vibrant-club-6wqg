@@ -1128,11 +1128,16 @@ export default function Page() {
       setConversations((prev) => [newConvo, ...prev])
       setActiveConvoId(convoId)
 
-      // 1. Start session
+      // 1. Start session — pass language preference if set
+      const sessionPayload: Record<string, string> = { agentId: VOICE_AGENT_ID }
+      if (voiceLanguage !== 'auto') {
+        const langLabel = SUPPORTED_LANGUAGES.find((l) => l.code === voiceLanguage)?.label || voiceLanguage
+        sessionPayload.language = langLabel
+      }
       const res = await fetch('https://voice-sip.studio.lyzr.ai/session/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ agentId: VOICE_AGENT_ID }),
+        body: JSON.stringify(sessionPayload),
       })
 
       if (!res.ok) {
@@ -1178,6 +1183,16 @@ export default function Page() {
 
       ws.onopen = () => {
         setVoiceStatus('connected')
+
+        // Send language context as first message so agent greets in the right language
+        if (voiceLanguage !== 'auto') {
+          const langLabel = SUPPORTED_LANGUAGES.find((l) => l.code === voiceLanguage)?.label || voiceLanguage
+          ws.send(JSON.stringify({
+            type: 'context',
+            text: `[Language: ${langLabel}] The customer prefers ${langLabel}. You MUST speak ONLY in ${langLabel} from now on. Greet them in ${langLabel}.`,
+          }))
+        }
+
         processor.onaudioprocess = (e: AudioProcessingEvent) => {
           if (isMutedRef.current || ws.readyState !== WebSocket.OPEN) return
           const inputData = e.inputBuffer.getChannelData(0)
@@ -1280,7 +1295,7 @@ export default function Page() {
       setVoiceStatus('error')
       setActiveAgentId(null)
     }
-  }, [cleanupVoice])
+  }, [cleanupVoice, voiceLanguage])
 
   const endVoiceCall = useCallback(() => {
     try { wsRef.current?.close() } catch {}
